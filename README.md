@@ -19,6 +19,9 @@ A professional web-based remote control for Tadiran air conditioners using ESP32
 - 🔒 **Captive Portal**: Automatic redirection for easy setup
 - 📡 **mDNS**: Access via `http://accontrol.local`
 - 🤖 **Automation Ready**: Temperature-based and schedule-based control
+- 🎯 **38+ AC Models**: Support for major brands (Daikin, Mitsubishi, Panasonic, etc.)
+- 💾 **Persistent Model Selection**: Set your AC model once, use simple commands
+- 🔄 **Smart Command Handling**: Automatic model persistence and fallback
 
 ## Hardware Requirements
 
@@ -66,6 +69,9 @@ If you're using Home Assistant, check out the **[complete integration guide](HOM
 - **Main Control**: Visit `http://accontrol.local/config`
 - **Direct API**: `http://accontrol.local/set?mode=1&temp=24&fan=2&swing=0`
 
+### API Documentation
+For complete API reference and examples, see **[📖 API Documentation](API_DOCUMENTATION.md)**
+
 ## 🏠 Home Assistant Integration
 
 This project works seamlessly with Home Assistant! Check out the complete integration guide:
@@ -89,6 +95,17 @@ input_select:
     name: AC Mode
     options: ["0: Off", "1: Cool", "2: Heat", "3: Fan", "4: Dry"]
     initial: "0: Off"
+  
+  ac_model:
+    name: AC Model
+    options: 
+      - "0: Tadiran"
+      - "4: Daikin"
+      - "6: Daikin216"
+      - "24: Mitsubishi AC"
+      - "29: Panasonic AC"
+      - "31: Samsung AC"
+    initial: "0: Tadiran"
 
 input_number:
   ac_temperature:
@@ -100,8 +117,19 @@ input_number:
     mode: slider
 
 rest_command:
+  # Set AC model (run once to configure)
+  set_ac_model:
+    url: "http://accontrol.local/set?model={{ model }}&mode=1&temp=24"
+    method: "GET"
+  
+  # Simple commands (uses saved model)
   set_ac_control:
     url: "http://accontrol.local/set?mode={{ mode }}&temp={{ temp }}"
+    method: "GET"
+  
+  # Commands with model override
+  set_ac_control_with_model:
+    url: "http://accontrol.local/set?model={{ model }}&mode={{ mode }}&temp={{ temp }}&fan={{ fan }}&swing={{ swing }}"
     method: "GET"
 ```
 
@@ -130,7 +158,7 @@ Create quick scripts for Apple Watch and voice assistants:
 
 #### AC Control
 ```
-GET /set?mode={mode}&temp={temp}&fan={fan}&swing={swing}
+GET /set?mode={mode}&temp={temp}&fan={fan}&swing={swing}&model={model}
 ```
 
 **Parameters:**
@@ -138,16 +166,26 @@ GET /set?mode={mode}&temp={temp}&fan={fan}&swing={swing}
 - `temp`: Temperature (16-30°C)
 - `fan`: Fan speed (1-4, optional, default=1)
 - `swing`: Swing mode (0=Off, 1=On, optional, default=0)
+- `model`: AC model ID (0-37, optional, see supported models below)
+
+**💾 Persistent Model Selection:**
+- **First request**: Include `model` parameter to set your AC model
+- **Subsequent requests**: Omit `model` parameter to use the saved model
+- **Change model**: Include `model` parameter anytime to switch models
 
 **Examples:**
 ```bash
-# Turn on cool mode at 24°C
-curl "http://accontrol.local/set?mode=1&temp=24"
+# Set model to Daikin (model 4) and turn on cool mode at 24°C
+curl "http://accontrol.local/set?model=4&mode=1&temp=24"
 
-# Turn on heat mode at 22°C with fan speed 3
-curl "http://accontrol.local/set?mode=2&temp=22&fan=3"
+# Use saved model (Daikin) for subsequent commands
+curl "http://accontrol.local/set?mode=1&temp=22"
+curl "http://accontrol.local/set?mode=2&temp=26&fan=3"
 
-# Turn off AC
+# Change to Mitsubishi AC (model 6) and send command
+curl "http://accontrol.local/set?model=6&mode=1&temp=25"
+
+# Use saved model (Mitsubishi) for next command
 curl "http://accontrol.local/set?mode=0&temp=0"
 ```
 
@@ -166,14 +204,83 @@ The web interface includes one-click buttons for common settings:
 
 ## Supported AC Models
 
-This project uses the [IRTadiran library](https://github.com/arikfe/IRTadiran) by [arikfe](https://github.com/arikfe) and supports:
-- Tadiran air conditioners (common in Israel)
-- All standard modes: Cool, Heat, Circulate, Dry
-- Temperature range: 16-30°C
-- Fan speeds: 1-4
-- Swing control
+This project supports **38+ AC models** including major brands worldwide:
 
-**Note**: The IRTadiran library is licensed under MIT License, which allows for commercial use, modification, distribution, and private use.
+### **🎯 Supported Brands & Models:**
+- **Tadiran** (0) - Original implementation
+- **Carrier** (1-3) - AC64, AC84, AC128
+- **Daikin** (4-13) - Standard + 9 variants (Daikin2, Daikin216, Daikin64, etc.)
+- **Fujitsu** (14) - Fujitsu AC
+- **Gree** (15) - Gree AC
+- **Hitachi** (16-21) - Standard + 5 variants (HitachiAC1-4, HitachiAC424)
+- **Kelvinator** (22) - Kelvinator AC
+- **Midea** (23) - Midea AC
+- **Mitsubishi** (24-28) - Standard + 4 variants (Mitsubishi136, Mitsubishi112, Heavy88, Heavy152)
+- **Panasonic** (29-30) - Standard + PanasonicAC32
+- **Samsung** (31) - Samsung AC
+- **Sharp** (32) - Sharp AC
+- **TCL** (33) - TCL 112AC
+- **Toshiba** (34) - Toshiba AC
+- **Trotec** (35) - Trotec
+- **Vestel** (36) - Vestel AC
+- **Whirlpool** (37) - Whirlpool AC
+
+### **🔧 Model Selection:**
+1. **Web Interface**: Select your AC model from the dropdown
+2. **API**: Use `model` parameter (0-37) in API calls
+3. **Persistent**: Model selection is saved until changed
+4. **Fallback**: Unknown models default to Tadiran
+
+### **📋 All Supported Models:**
+```
+0:  Tadiran (Current)
+1:  Carrier AC64
+2:  Carrier AC84  
+3:  Carrier AC128
+4:  Daikin
+5:  Daikin2
+6:  Daikin216
+7:  Daikin64
+8:  Daikin128
+9:  Daikin152
+10: Daikin160
+11: Daikin176
+12: Daikin200
+13: Daikin312
+14: Fujitsu AC
+15: Gree AC
+16: Hitachi AC
+17: Hitachi AC1
+18: Hitachi AC2
+19: Hitachi AC3
+20: Hitachi AC4
+21: Hitachi AC424
+22: Kelvinator AC
+23: Midea AC
+24: Mitsubishi AC
+25: Mitsubishi 136
+26: Mitsubishi 112
+27: Mitsubishi Heavy 88
+28: Mitsubishi Heavy 152
+29: Panasonic AC
+30: Panasonic AC32
+31: Samsung AC
+32: Sharp AC
+33: TCL 112AC
+34: Toshiba AC
+35: Trotec
+36: Vestel AC
+37: Whirlpool AC
+```
+
+### **🎛️ Standard Features:**
+- **Modes**: Cool, Heat, Circulate, Dry, Off
+- **Temperature**: 16-30°C range
+- **Fan Speeds**: 1-4 levels
+- **Swing Control**: On/Off
+- **IR Protocols**: Based on IRremoteESP8266 library
+
+**Note**: The original [IRTadiran library](https://github.com/arikfe/IRTadiran) by [arikfe](https://github.com/arikfe) is licensed under MIT License and is used for Tadiran AC units.
 
 ## Troubleshooting
 
@@ -201,20 +308,23 @@ ACWebRemote/
 │   ├── main.cpp              # Main application
 │   ├── config.h              # Configuration constants
 │   ├── web_interface.cpp     # Web UI generation
-│   └── web_interface.h       # Web interface header
+│   ├── web_interface.h       # Web interface header
+│   ├── ac_controller.cpp     # AC model control logic
+│   └── ac_controller.h       # AC controller header
 ├── lib/
 │   └── IRTadiran/            # IR protocol library
 ├── platformio.ini            # PlatformIO configuration
 ├── README.md                 # This file
+├── API_DOCUMENTATION.md      # Complete API reference
 ├── HOME_ASSISTANT_INTEGRATION.md  # Home Assistant guide
 └── LICENSE                   # MIT License
 ```
 
 ### Dependencies
-- `IRremoteESP8266` - IR signal generation
+- `IRremoteESP8266` - IR signal generation for 38+ AC models
 - `WiFiManager` - WiFi configuration
 - `ArduinoJson` - JSON handling
-- `IRTadiran` - Tadiran AC protocol
+- `IRTadiran` - Tadiran AC protocol (original implementation)
 
 ### Building
 ```bash

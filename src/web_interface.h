@@ -4,9 +4,9 @@
 #include <WebServer.h>
 
 // Web interface functions
-String generateConfigPage();
-String generateStatusHTML();
-String generateACControlForm();
+String generateConfigPage(int currentModel = 0);
+String generateStatusHTML(int currentModel = 0);
+String generateACControlForm(int currentModel = 0);
 String generateQuickActions();
 String generateSystemControls();
 String generateJavaScript();

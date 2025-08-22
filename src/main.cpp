@@ -13,13 +13,17 @@
         #include "secrets.h"
     #endif
 #endif
-#include "IRTadiran.h"
+#include "ac_controller.h"
 #include "web_interface.h"
 
 // Global objects
 WiFiManager wifiManager;
 WebServer server(WEB_SERVER_PORT);
 IRsend irsend(IR_LED_PIN);
+ACController acController(&irsend);
+
+// Global variables
+int currentACModel = DEFAULT_AC_MODEL;
 
 // Function declarations
 bool connectToWiFi();
@@ -29,7 +33,6 @@ void acHandler();
 void configHandler();
 void resetHandler();
 void startConfigPortal();
-void acAction(int acMode, int acTemp, int acFan = 1, bool acSwing = false);
 
 void setup() {
     // Initialize hardware
@@ -113,60 +116,40 @@ bool connectToWiFi() {
     }
 }
 
-void acAction(int acMode, int acTemp, int acFan, bool acSwing) {
-    bool onOff = (acMode != AC_MODE_OFF);
-    
-    // Validate parameters
-    if (acTemp < AC_TEMP_MIN || acTemp > AC_TEMP_MAX) {
-        Serial.printf("Invalid temperature: %d (must be %d-%d)\n", acTemp, AC_TEMP_MIN, AC_TEMP_MAX);
-        return;
-    }
-    
-    if (acMode < AC_MODE_MIN || acMode > AC_MODE_MAX) {
-        Serial.printf("Invalid mode: %d (must be %d-%d)\n", acMode, AC_MODE_MIN, AC_MODE_MAX);
-        return;
-    }
-    
-    if (acFan < AC_FAN_MIN || acFan > AC_FAN_MAX) {
-        Serial.printf("Invalid fan speed: %d (must be %d-%d)\n", acFan, AC_FAN_MIN, AC_FAN_MAX);
-        return;
-    }
-    
-    Serial.printf("Sending IR command: Power=%s, Mode=%d, Temp=%d, Fan=%d, Swing=%s\n", 
-                  onOff ? "ON" : "OFF", acMode, acTemp, acFan, acSwing ? "ON" : "OFF");
-    
-    IRTadiran ir(&irsend);
-    bool success = ir.send(onOff, acMode, acFan, acTemp, acSwing);
-    
-    if (success) {
-        Serial.println("IR command sent successfully");
-    } else {
-        Serial.println("Failed to send IR command");
-    }
-}
+
 
 void acHandler() {
     if (server.hasArg("mode") && server.hasArg("temp")) {
+        // Update current model if provided, otherwise use saved model
+        if (server.hasArg("model")) {
+            currentACModel = server.arg("model").toInt();
+            Serial.printf("AC Model changed to: %d (%s)\n", currentACModel, AC_MODEL_NAMES[currentACModel]);
+        }
+        
         int mode = server.arg("mode").toInt();
         int temp = server.arg("temp").toInt();
         int fan = server.hasArg("fan") ? server.arg("fan").toInt() : AC_FAN_MIN;
         bool swing = server.hasArg("swing") ? (server.arg("swing").toInt() == 1) : false;
         
-        Serial.printf("AC Command: Mode=%d, Temp=%d, Fan=%d, Swing=%s\n", 
-                      mode, temp, fan, swing ? "ON" : "OFF");
+        Serial.printf("AC Command: Model=%d (%s), Mode=%d, Temp=%d, Fan=%d, Swing=%s\n", 
+                      currentACModel, AC_MODEL_NAMES[currentACModel], mode, temp, fan, swing ? "ON" : "OFF");
         
-        acAction(mode, temp, fan, swing);
-        server.send(200, "text/plain", "AC command sent successfully!");
+        bool success = acController.sendCommand(currentACModel, mode, temp, fan, swing);
+        if (success) {
+            server.send(200, "text/plain", "AC command sent successfully!");
+        } else {
+            server.send(500, "text/plain", "Failed to send AC command");
+        }
     } else {
         Serial.println("Incorrect Command - missing required parameters");
         Serial.println("Required: mode, temp");
-        Serial.println("Optional: fan, swing");
+        Serial.println("Optional: model, fan, swing");
         server.send(400, "text/plain", "Incorrect request! Required: mode, temp");
     }
 }
 
 void configHandler() {
-    server.send(200, "text/html", generateConfigPage());
+    server.send(200, "text/html", generateConfigPage(currentACModel));
 }
 
 void resetHandler() {

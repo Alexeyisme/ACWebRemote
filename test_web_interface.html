@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AC Controller Config - Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body{font-family:Arial;margin:20px;background:#f0f0f0;}
+        .container{max-width:600px;margin:0 auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+        input,select{width:100%;padding:10px;margin:10px 0;border:1px solid #ddd;border-radius:5px;box-sizing:border-box;}
+        button{background:#007cba;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;margin:5px;}
+        button:hover{background:#005a87;}
+        .status{background:#e7f3ff;padding:10px;border-radius:5px;margin:10px 0;}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1>AC Controller Configuration - Test</h1>
+        
+        <div class='status'>
+            <strong>Current Status:</strong><br>
+            WiFi: Connected<br>
+            IP: 192.168.1.100<br>
+            SSID: TestWiFi<br>
+            AC Model: <span id="currentModel">Tadiran (Current)</span><br>
+        </div>
+        
+        <h2>WiFi Configuration</h2>
+        <p>To change WiFi settings, click the button below to start the configuration portal.</p>
+        <p><strong>Instructions:</strong></p>
+        <ol>
+            <li>Click 'Start WiFi Config Portal'</li>
+            <li>Connect to WiFi network: <strong>ACWebRemote</strong> (password: 12345678)</li>
+            <li>Open any website or visit <strong>http://accontrol.local</strong></li>
+            <li>You'll be automatically redirected to the configuration page</li>
+            <li>Enter your WiFi credentials and save</li>
+        </ol>
+        <button onclick='startConfig()'>Start WiFi Config Portal</button>
+        
+        <h2>AC Control</h2>
+        <p>Control your air conditioner:</p>
+        <form action='/set' method='get'>
+            <!-- AC Model selection -->
+            <label>AC Model:</label>
+            <select name='model' id='acModel'>
+                <option value='0' selected>Tadiran (Current)</option>
+                <option value='1'>Carrier AC64</option>
+                <option value='2'>Carrier AC84</option>
+                <option value='3'>Carrier AC128</option>
+                <option value='4'>Daikin</option>
+                <option value='5'>Daikin2</option>
+                <option value='6'>Daikin216</option>
+                <option value='7'>Daikin64</option>
+                <option value='8'>Daikin128</option>
+                <option value='9'>Daikin152</option>
+                <option value='10'>Daikin160</option>
+                <option value='11'>Daikin176</option>
+                <option value='12'>Daikin200</option>
+                <option value='13'>Daikin312</option>
+                <option value='14'>Fujitsu AC</option>
+                <option value='15'>Gree</option>
+                <option value='16'>Hitachi AC</option>
+                <option value='17'>Hitachi AC1</option>
+                <option value='18'>Hitachi AC2</option>
+                <option value='19'>Hitachi AC3</option>
+                <option value='20'>Hitachi AC4</option>
+                <option value='21'>Hitachi AC424</option>
+                <option value='22'>Kelvinator</option>
+                <option value='23'>Midea</option>
+                <option value='24'>Mitsubishi AC</option>
+                <option value='25'>Mitsubishi 136</option>
+                <option value='26'>Mitsubishi 112</option>
+                <option value='27'>Mitsubishi Heavy 88</option>
+                <option value='28'>Mitsubishi Heavy 152</option>
+                <option value='29'>Panasonic AC</option>
+                <option value='30'>Panasonic AC32</option>
+                <option value='31'>Samsung AC</option>
+                <option value='32'>Sharp AC</option>
+                <option value='33'>TCL 112 AC</option>
+                <option value='34'>Toshiba AC</option>
+                <option value='35'>Trotec</option>
+                <option value='36'>Vestel AC</option>
+                <option value='37'>Whirlpool AC</option>
+            </select>
+            
+            <!-- Mode selection -->
+            <label>Mode:</label>
+            <select name='mode'>
+                <option value='0'>Off</option>
+                <option value='1' selected>Cool</option>
+                <option value='2'>Heat</option>
+                <option value='3'>Circulate</option>
+                <option value='4'>Dry</option>
+            </select>
+            
+            <!-- Temperature -->
+            <label>Temperature (°C):</label>
+            <input type='number' name='temp' min='16' max='30' value='24'>
+            
+            <!-- Fan speed -->
+            <label>Fan Speed:</label>
+            <select name='fan'>
+                <option value='1' selected>Speed 1</option>
+                <option value='2'>Speed 2</option>
+                <option value='3'>Speed 3</option>
+                <option value='4'>Speed 4</option>
+            </select>
+            
+            <!-- Swing -->
+            <label>Swing:</label>
+            <select name='swing'>
+                <option value='0' selected>Off</option>
+                <option value='1'>On</option>
+            </select>
+            
+            <button type='submit'>Send Command</button>
+        </form>
+        
+        <h3>Quick Actions</h3>
+        <div style='display:flex;gap:10px;flex-wrap:wrap;'>
+            <button onclick='sendCommand(1,24,1,0)'>Cool 24°C</button>
+            <button onclick='sendCommand(2,22,1,0)'>Heat 22°C</button>
+            <button onclick='sendCommand(0,0,1,0)'>Turn Off</button>
+            <button onclick='sendCommand(1,18,4,0)'>Cool 18°C Max Fan</button>
+        </div>
+        
+        <h2>System</h2>
+        <button onclick='resetWiFi()'>Reset WiFi Settings</button>
+        <button onclick='restart()'>Restart Device</button>
+        
+        <div id="log" style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 5px; font-family: monospace; font-size: 12px;">
+            <strong>Command Log:</strong><br>
+            <div id="logContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        function startConfig() {
+            if(confirm('This will disconnect from current WiFi and start configuration portal. Continue?')) {
+                log('Starting WiFi config portal...');
+            }
+        }
+        
+        function resetWiFi() {
+            if(confirm('This will erase all WiFi settings. Continue?')) {
+                log('Resetting WiFi settings...');
+            }
+        }
+        
+        function restart() {
+            if(confirm('Restart the device?')) {
+                log('Restarting device...');
+            }
+        }
+        
+        function sendCommand(mode, temp, fan, swing) {
+            const model = document.getElementById('acModel').value;
+            const url = `/set?model=${model}&mode=${mode}&temp=${temp}&fan=${fan}&swing=${swing}`;
+            log(`Sending command: ${url}`);
+            
+            // Update current model display
+            document.getElementById('currentModel').textContent = document.getElementById('acModel').options[model].text;
+            
+            // Simulate the command being sent
+            setTimeout(() => {
+                log(`Command sent successfully! Model: ${document.getElementById('acModel').options[model].text}, Mode: ${mode}, Temp: ${temp}°C, Fan: ${fan}, Swing: ${swing ? 'ON' : 'OFF'}`);
+                log(`AC Model saved: ${document.getElementById('acModel').options[model].text} (will be used for future commands)`);
+            }, 500);
+        }
+        
+        function log(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `[${timestamp}] ${message}<br>`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        // Test the form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            log(`Form submitted: /set?${params.toString()}`);
+            
+            // Update current model display
+            const model = document.getElementById('acModel').value;
+            document.getElementById('currentModel').textContent = document.getElementById('acModel').options[model].text;
+            log(`AC Model saved: ${document.getElementById('acModel').options[model].text} (will be used for future commands)`);
+        });
+    </script>
+</body>
+</html>

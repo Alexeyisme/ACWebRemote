@@ -2,20 +2,30 @@
 #include "config.h"
 #include <WiFi.h>
 
-String generateStatusHTML() {
+String generateStatusHTML(int currentModel) {
     String html = "<div class='status'>";
     html += "<strong>Current Status:</strong><br>";
     html += "WiFi: " + String(WiFi.status() == WL_CONNECTED ? "Connected" : "Disconnected") + "<br>";
     html += "IP: " + WiFi.localIP().toString() + "<br>";
     html += "SSID: " + WiFi.SSID() + "<br>";
+    html += "AC Model: " + String(AC_MODEL_NAMES[currentModel]) + "<br>";
     html += "</div>";
     return html;
 }
 
-String generateACControlForm() {
+String generateACControlForm(int currentModel) {
     String html = "<h2>AC Control</h2>";
-    html += "<p>Control your Tadiran air conditioner:</p>";
+    html += "<p>Control your air conditioner:</p>";
     html += "<form action='" + String(ENDPOINT_SET) + "' method='get'>";
+    
+    // AC Model selection
+    html += "<label>AC Model:</label><select name='model' id='acModel'>";
+    for (int i = 0; i < AC_MODEL_COUNT; i++) {
+        html += "<option value='" + String(i) + "'";
+        if (i == currentModel) html += " selected";
+        html += ">" + String(AC_MODEL_NAMES[i]) + "</option>";
+    }
+    html += "</select>";
     
     // Mode selection
     html += "<label>Mode:</label><select name='mode'>";
@@ -86,7 +96,8 @@ String generateJavaScript() {
     html += "  }";
     html += "}";
     html += "function sendCommand(mode, temp, fan, swing) {";
-    html += "  const url = `" + String(ENDPOINT_SET) + "?mode=${mode}&temp=${temp}&fan=${fan}&swing=${swing}`;";
+    html += "  const model = document.getElementById('acModel').value;";
+    html += "  const url = `" + String(ENDPOINT_SET) + "?model=${model}&mode=${mode}&temp=${temp}&fan=${fan}&swing=${swing}`;";
     html += "  fetch(url).then(response => response.text()).then(result => {";
     html += "    alert('Command sent: ' + result);";
     html += "  }).catch(error => {";
@@ -97,7 +108,7 @@ String generateJavaScript() {
     return html;
 }
 
-String generateConfigPage() {
+String generateConfigPage(int currentModel) {
     String html = "<!DOCTYPE html><html><head><title>AC Controller Config</title>";
     html += "<meta name='viewport' content='width=device-width, initial-scale=1'>";
     html += "<style>";
@@ -110,7 +121,7 @@ String generateConfigPage() {
     html += "</style></head><body><div class='container'>";
     
     html += "<h1>AC Controller Configuration</h1>";
-    html += generateStatusHTML();
+    html += generateStatusHTML(currentModel);
     
     // WiFi Configuration section
     html += "<h2>WiFi Configuration</h2>";
@@ -125,7 +136,7 @@ String generateConfigPage() {
     html += "</ol>";
     html += "<button onclick='startConfig()'>Start WiFi Config Portal</button>";
     
-    html += generateACControlForm();
+    html += generateACControlForm(currentModel);
     html += generateQuickActions();
     html += generateSystemControls();
     html += generateJavaScript();
