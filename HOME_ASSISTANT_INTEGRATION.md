@@ -7,15 +7,20 @@ This guide shows how to integrate the AC Web Remote with Home Assistant for seam
 ## 📋 Implementation Status
 
 ### **✅ Fully Functional:**
-- **Tadiran AC (Model 0)**: Complete implementation, ready for production use
+- **All 38+ AC Models**: Complete IRac implementations for all supported protocols
+- **Tadiran AC (Model 0)**: Complete implementation with IRTadiran library
+- **All Other Models**: Full IRac implementations with proper parameter handling
 
-### **🔧 Infrastructure Ready:**
-- **37 additional AC models**: Carrier, Daikin, Fujitsu, Gree, Hitachi, Kelvinator, Midea, Mitsubishi, Panasonic, Samsung, Sharp, TCL, Toshiba, Trotec, Vestel, Whirlpool
+### **🏗️ Advanced IRac System:**
+- **Unified Framework**: All models use IRremoteESP8266 IRac framework
+- **Full Parameter Support**: Mode, temperature, fan, swing properly mapped
+- **State Management**: Consistent AC state handling across all protocols
+- **Production Ready**: All implementations ready for real-world use
 
-### **🔄 Smart Fallback:**
-- Unimplemented models automatically fall back to Tadiran
-- No integration changes needed - works seamlessly with Home Assistant
-- Clear logging shows which model is being used
+### **🔄 Complete Compatibility:**
+- All AC models work seamlessly with Home Assistant
+- No integration changes needed - works with all supported protocols
+- Clear logging shows which model and parameters are being used
 
 ## 📋 Configuration Files
 
