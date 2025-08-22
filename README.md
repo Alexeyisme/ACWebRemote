@@ -1,19 +1,24 @@
 # AC Web Remote - ESP32 Air Conditioner Controller
 
-[![PlatformIO CI](https://github.com/yourusername/ACWebRemote/workflows/PlatformIO%20CI/badge.svg)](https://github.com/yourusername/ACWebRemote/actions)
+[![PlatformIO CI](https://github.com/Alexeyisme/ACWebRemote/workflows/PlatformIO%20CI/badge.svg)](https://github.com/Alexeyisme/ACWebRemote/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Compatible-brightgreen.svg)](https://www.home-assistant.io/)
+[![ESP32](https://img.shields.io/badge/ESP32-Compatible-blue.svg)](https://www.espressif.com/en/products/socs/esp32)
 
-A professional web-based remote control for Tadiran air conditioners using ESP32 and IR LED.
+A professional web-based remote control for Tadiran air conditioners using ESP32 and IR LED. **Perfect for Home Assistant integration!**
 
 ## Features
 
 - 🌐 **Web Interface**: Control your AC from any device via web browser
+- 🏠 **Home Assistant Integration**: Seamless smart home automation
 - 📱 **Mobile Friendly**: Responsive design works on phones and tablets
+- ⌚ **Apple Watch Support**: Quick actions from your wrist
 - 🔧 **WiFi Manager**: Easy WiFi configuration without reflashing
 - 🎛️ **Full Control**: Power, mode, temperature, fan speed, and swing
 - 🚀 **Quick Actions**: One-click presets for common settings
 - 🔒 **Captive Portal**: Automatic redirection for easy setup
 - 📡 **mDNS**: Access via `http://accontrol.local`
+- 🤖 **Automation Ready**: Temperature-based and schedule-based control
 
 ## Hardware Requirements
 
@@ -48,6 +53,13 @@ pio run --target upload
 4. You'll be automatically redirected to the configuration page
 5. Enter your WiFi credentials and save
 
+### 5. Home Assistant Integration (Optional)
+If you're using Home Assistant, check out the **[complete integration guide](HOME_ASSISTANT_INTEGRATION.md)** for:
+- Beautiful UI cards and dashboards
+- Apple Watch quick actions
+- Advanced automations
+- Voice control integration
+
 ## Usage
 
 ### Web Interface
@@ -59,6 +71,15 @@ pio run --target upload
 This project works seamlessly with Home Assistant! Check out the complete integration guide:
 
 **[📖 Home Assistant Integration Guide](HOME_ASSISTANT_INTEGRATION.md)**
+
+### **✨ Home Assistant Features**
+- **🖥️ Beautiful UI**: Responsive cards with sliders and buttons
+- **⌚ Apple Watch Support**: Quick actions from your wrist
+- **🤖 Full Automation**: Temperature-based and schedule-based control
+- **📱 Mobile Friendly**: Works perfectly on phones and tablets
+- **🎯 Voice Control**: Siri and Google Assistant integration
+- **📊 Energy Monitoring**: Track usage and costs
+- **🏠 Smart Home**: Integrate with presence detection and sensors
 
 ### **Quick Home Assistant Setup**
 ```yaml
@@ -84,12 +105,26 @@ rest_command:
     method: "GET"
 ```
 
-### **Apple Watch Support**
-Create quick scripts for Apple Watch control:
-- AC Off
-- AC Cool 20°C
-- AC Heat 22°C
-- AC Dry 20°C
+### **🍎 Apple Watch & Voice Control**
+Create quick scripts for Apple Watch and voice assistants:
+- **AC Off** - Quick power off
+- **AC Cool 20°C** - Comfortable cooling
+- **AC Heat 22°C** - Warm heating
+- **AC Dry 20°C** - Dehumidification
+- **AC Eco Mode** - Energy saving
+- **AC Sleep Mode** - Night comfort
+
+### **🤖 Advanced Automations**
+- **Temperature-based control**: Auto-cool when room is hot
+- **Schedule-based**: Morning and evening routines
+- **Presence detection**: Turn off when leaving home
+- **Energy optimization**: Smart temperature management
+
+### **📱 Mobile Dashboard**
+- **Mushroom Cards**: Beautiful, modern UI
+- **Quick Actions**: One-tap presets
+- **Real-time Control**: Instant response
+- **Status Monitoring**: Current AC state
 
 ### API Endpoints
 
@@ -163,10 +198,16 @@ This project uses the [IRTadiran library](https://github.com/arikfe/IRTadiran) b
 ```
 ACWebRemote/
 ├── src/
-│   └── connect_request.ino    # Main application
+│   ├── main.cpp              # Main application
+│   ├── config.h              # Configuration constants
+│   ├── web_interface.cpp     # Web UI generation
+│   └── web_interface.h       # Web interface header
+├── lib/
+│   └── IRTadiran/            # IR protocol library
 ├── platformio.ini            # PlatformIO configuration
 ├── README.md                 # This file
-└── lib/                      # Local libraries (if any)
+├── HOME_ASSISTANT_INTEGRATION.md  # Home Assistant guide
+└── LICENSE                   # MIT License
 ```
 
 ### Dependencies
