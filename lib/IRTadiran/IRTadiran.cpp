@@ -50,7 +50,7 @@ bool IRTadiran::send(bool power, int mode, int fan, int temperature, bool swing)
     
     uint16_t* buff = createBuffer();
     _remote->sendRaw(buff, IR_BUFFER_SIZE, IR_FREQUENCY);
-    delete (buff);
+    delete[] buff;
     return true;
 }
 

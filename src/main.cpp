@@ -111,14 +111,14 @@ bool connectToWiFi() {
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
         
-        // Setup mDNS
+        // Setup mDNS (non-fatal if it fails)
         if (!MDNS.begin(WIFI_HOSTNAME)) {
-            Serial.println("Error setting up MDNS responder!");
-            return false;
+            Serial.println("Error setting up mDNS responder. Continuing without mDNS.");
+        } else {
+            Serial.println("mDNS responder started");
+            Serial.printf("Address: %s.local\n", WIFI_HOSTNAME);
+            MDNS.addService("http", "tcp", WEB_SERVER_PORT);
         }
-        Serial.println("mDNS responder started");
-        Serial.printf("Address: %s.local\n", WIFI_HOSTNAME);
-        MDNS.addService("http", "tcp", WEB_SERVER_PORT);
         
         return true;
     } else {
@@ -130,7 +130,7 @@ bool connectToWiFi() {
 
 
 void acHandler() {
-    if (server.hasArg("mode") && server.hasArg("temp")) {
+    if (server.hasArg("mode") && (server.hasArg("temp") || server.arg("mode").toInt() == AC_MODE_OFF)) {
         // Update current model if provided, otherwise use saved model
         if (server.hasArg("model")) {
             int newModel = server.arg("model").toInt();
@@ -142,7 +142,7 @@ void acHandler() {
         }
         
         int mode = server.arg("mode").toInt();
-        int temp = server.arg("temp").toInt();
+        int temp = server.hasArg("temp") ? server.arg("temp").toInt() : 0;
         int fan = server.hasArg("fan") ? server.arg("fan").toInt() : AC_FAN_MIN;
         bool swing = server.hasArg("swing") ? (server.arg("swing").toInt() == 1) : false;
         

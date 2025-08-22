@@ -65,7 +65,7 @@ String generateQuickActions() {
     html += "<div style='display:flex;gap:10px;flex-wrap:wrap;'>";
     html += "<button onclick='sendCommand(1,24,1,0)'>Cool 24°C</button>";
     html += "<button onclick='sendCommand(2,22,1,0)'>Heat 22°C</button>";
-    html += "<button onclick='sendCommand(0,0,1,0)'>Turn Off</button>";
+    html += "<button onclick='sendCommand(0,null,1,0)'>Turn Off</button>";
     html += "<button onclick='sendCommand(1,18,4,0)'>Cool 18°C Max Fan</button>";
     html += "</div>";
     return html;
@@ -97,7 +97,8 @@ String generateJavaScript() {
     html += "}";
     html += "function sendCommand(mode, temp, fan, swing) {";
     html += "  const model = document.getElementById('acModel').value;";
-    html += "  const url = `" + String(ENDPOINT_SET) + "?model=${model}&mode=${mode}&temp=${temp}&fan=${fan}&swing=${swing}`;";
+    html += "  let url = `" + String(ENDPOINT_SET) + "?model=${model}&mode=${mode}&fan=${fan}&swing=${swing}`;";
+    html += "  if (temp !== null && temp !== undefined) { url += `&temp=${temp}`; }";
     html += "  fetch(url).then(response => response.text()).then(result => {";
     html += "    alert('Command sent: ' + result);";
     html += "  }).catch(error => {";
