@@ -54,6 +54,43 @@ pio run --target upload
 - **Main Control**: Visit `http://accontrol.local/config`
 - **Direct API**: `http://accontrol.local/set?mode=1&temp=24&fan=2&swing=0`
 
+## 🏠 Home Assistant Integration
+
+This project works seamlessly with Home Assistant! Check out the complete integration guide:
+
+**[📖 Home Assistant Integration Guide](HOME_ASSISTANT_INTEGRATION.md)**
+
+### **Quick Home Assistant Setup**
+```yaml
+# configuration.yaml
+input_select:
+  ac_mode:
+    name: AC Mode
+    options: ["0: Off", "1: Cool", "2: Heat", "3: Fan", "4: Dry"]
+    initial: "0: Off"
+
+input_number:
+  ac_temperature:
+    name: AC Temperature
+    initial: 22
+    min: 16
+    max: 30
+    step: 1
+    mode: slider
+
+rest_command:
+  set_ac_control:
+    url: "http://accontrol.local/set?mode={{ mode }}&temp={{ temp }}"
+    method: "GET"
+```
+
+### **Apple Watch Support**
+Create quick scripts for Apple Watch control:
+- AC Off
+- AC Cool 20°C
+- AC Heat 22°C
+- AC Dry 20°C
+
 ### API Endpoints
 
 #### AC Control
