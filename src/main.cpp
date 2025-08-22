@@ -6,6 +6,7 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <WiFiManager.h>
+#include <Preferences.h>
 
 #include "config.h"
 #ifdef __has_include
@@ -21,6 +22,7 @@ WiFiManager wifiManager;
 WebServer server(WEB_SERVER_PORT);
 IRsend irsend(IR_LED_PIN);
 ACController acController(&irsend);
+Preferences preferences;
 
 // Global variables
 int currentACModel = DEFAULT_AC_MODEL;
@@ -41,6 +43,15 @@ void setup() {
     delay(100);
     
     Serial.println("AC Web Remote Starting...");
+
+    // Load saved AC model from NVS
+    preferences.begin("acwebremote", false);
+    int savedModel = preferences.getInt("acmodel", DEFAULT_AC_MODEL);
+    if (savedModel < 0 || savedModel >= AC_MODEL_COUNT) {
+        savedModel = DEFAULT_AC_MODEL;
+    }
+    currentACModel = savedModel;
+    Serial.printf("Loaded AC Model from NVS: %d\n", currentACModel);
     
     // Setup WiFi Manager
     setupWiFiManager();
@@ -122,7 +133,11 @@ void acHandler() {
     if (server.hasArg("mode") && server.hasArg("temp")) {
         // Update current model if provided, otherwise use saved model
         if (server.hasArg("model")) {
-            currentACModel = server.arg("model").toInt();
+            int newModel = server.arg("model").toInt();
+            if (newModel < 0) newModel = 0;
+            if (newModel >= AC_MODEL_COUNT) newModel = AC_MODEL_COUNT - 1;
+            currentACModel = newModel;
+            preferences.putInt("acmodel", currentACModel);
             Serial.printf("AC Model changed to: %d (%s)\n", currentACModel, AC_MODEL_NAMES[currentACModel]);
         }
         

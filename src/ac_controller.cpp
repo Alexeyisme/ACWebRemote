@@ -148,7 +148,6 @@ bool ACController::sendTadiran(int mode, int temp, int fan, bool swing) {
 // Daikin implementation
 bool ACController::sendDaikin(int mode, int temp, int fan, bool swing) {
     Serial.println("Daikin AC control - using basic IR send");
-    // For now, use basic IR send with Daikin protocol
     uint8_t data[] = {0x11, 0xDA, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00};
     _irsend->sendDaikin(data, 8);
     return true;
