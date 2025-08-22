@@ -1,0 +1,27 @@
+{
+  "name": "IRTadiran",
+  "version": "1.0.0",
+  "description": "IR library for Tadiran air conditioners - adapted from original by arikfe",
+  "keywords": "ir, infrared, tadiran, air-conditioner, esp32, esp8266",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arikfe/IRTadiran.git"
+  },
+  "authors": [
+    {
+      "name": "arikfe",
+      "email": "",
+      "maintainer": false
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "espressif32, espressif8266",
+  "dependencies": {
+    "crankyoldgit/IRremoteESP8266": "^2.7.19"
+  },
+  "build": {
+    "srcDir": ".",
+    "includeDir": "."
+  }
+}
