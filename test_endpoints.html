@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACWebRemote Endpoint Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .pending { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { margin: 5px; padding: 8px 15px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 ACWebRemote Endpoint Test</h1>
+    <p>Testing all web server endpoints to identify the "request handler not found" issue.</p>
+
+    <div class="test-section pending" id="main-page">
+        <h3>🏠 Main Page (/)</h3>
+        <button onclick="testEndpoint('/')">Test Main Page</button>
+        <div id="main-page-result"></div>
+    </div>
+
+    <div class="test-section pending" id="status-page">
+        <h3>📊 Status Page (/status)</h3>
+        <button onclick="testEndpoint('/status')">Test Status Page</button>
+        <div id="status-page-result"></div>
+    </div>
+
+    <div class="test-section pending" id="api-status">
+        <h3>📡 API Status (/api/status)</h3>
+        <button onclick="testEndpoint('/api/status')">Test API Status</button>
+        <div id="api-status-result"></div>
+    </div>
+
+    <div class="test-section pending" id="config-page">
+        <h3>⚙️ Config Page (/config)</h3>
+        <button onclick="testEndpoint('/config')">Test Config Page</button>
+        <div id="config-page-result"></div>
+    </div>
+
+    <div class="test-section pending" id="ac-set">
+        <h3>❄️ AC Control (/set)</h3>
+        <button onclick="testACSet()">Test AC Set Command</button>
+        <div id="ac-set-result"></div>
+    </div>
+
+    <div class="test-section pending" id="reset">
+        <h3>🔄 Reset (/reset)</h3>
+        <button onclick="testEndpoint('/reset')">Test Reset Page</button>
+        <div id="reset-result"></div>
+    </div>
+
+    <div class="test-section pending" id="not-found">
+        <h3>❌ Not Found Test</h3>
+        <button onclick="testEndpoint('/nonexistent')">Test Non-existent Page</button>
+        <div id="not-found-result"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://accontrol.local'; // Change to IP if mDNS doesn't work
+
+        async function testEndpoint(endpoint) {
+            const resultDiv = document.getElementById(endpoint.replace('/', '').replace('-', '') + '-result');
+            const section = resultDiv.parentElement;
+            
+            try {
+                section.className = 'test-section pending';
+                resultDiv.innerHTML = 'Testing...';
+                
+                const response = await fetch(BASE_URL + endpoint);
+                const contentType = response.headers.get('content-type');
+                
+                let resultText = `Status: ${response.status} ${response.statusText}\n`;
+                resultText += `Content-Type: ${contentType}\n`;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const json = await response.json();
+                    resultText += `Response: ${JSON.stringify(json, null, 2)}`;
+                } else {
+                    const text = await response.text();
+                    resultText += `Response: ${text.substring(0, 200)}${text.length > 200 ? '...' : ''}`;
+                }
+                
+                resultDiv.innerHTML = `<pre>${resultText}</pre>`;
+                section.className = response.ok ? 'test-section success' : 'test-section error';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                section.className = 'test-section error';
+            }
+        }
+
+        async function testACSet() {
+            const resultDiv = document.getElementById('ac-set-result');
+            const section = resultDiv.parentElement;
+            
+            try {
+                section.className = 'test-section pending';
+                resultDiv.innerHTML = 'Testing...';
+                
+                const response = await fetch(BASE_URL + '/set?mode=1&temp=24&fan=2&swing=0');
+                const text = await response.text();
+                
+                const resultText = `Status: ${response.status} ${response.statusText}\nResponse: ${text}`;
+                resultDiv.innerHTML = `<pre>${resultText}</pre>`;
+                section.className = response.ok ? 'test-section success' : 'test-section error';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                section.className = 'test-section error';
+            }
+        }
+
+        // Auto-test all endpoints
+        window.onload = function() {
+            setTimeout(() => {
+                testEndpoint('/');
+                setTimeout(() => testEndpoint('/status'), 500);
+                setTimeout(() => testEndpoint('/api/status'), 1000);
+                setTimeout(() => testEndpoint('/config'), 1500);
+                setTimeout(() => testACSet(), 2000);
+                setTimeout(() => testEndpoint('/reset'), 2500);
+                setTimeout(() => testEndpoint('/nonexistent'), 3000);
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

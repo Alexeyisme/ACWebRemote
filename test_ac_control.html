@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Control Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #212529;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 12px 0;
+        }
+        .form-group label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .form-group input, .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+        .button.secondary {
+            background: #6c757d;
+        }
+        .button.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .status {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AC Control Test Interface</h1>
+        <p>This demonstrates the new comprehensive AC control form that will be available on the main page.</p>
+        
+        <form id="ac-control-form">
+            <div class="form-group">
+                <label for="ac_model">AC Model:</label>
+                <select id="ac_model" name="model">
+                    <option value="0" selected>Tadiran</option>
+                    <option value="4">Daikin</option>
+                    <option value="24">Mitsubishi AC</option>
+                    <option value="29">Panasonic AC</option>
+                    <option value="31">Samsung AC</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ac_mode">Mode:</label>
+                <select id="ac_mode" name="mode">
+                    <option value="0">Off</option>
+                    <option value="1" selected>Cool</option>
+                    <option value="2">Heat</option>
+                    <option value="3">Fan</option>
+                    <option value="4">Dry</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="temperature_c">Temperature (°C):</label>
+                <input type="number" id="temperature_c" name="temp" value="24" min="16" max="30" placeholder="16-30°C">
+            </div>
+            
+            <div class="form-group">
+                <label for="ac_fan">Fan Speed:</label>
+                <select id="ac_fan" name="fan">
+                    <option value="1" selected>Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                    <option value="4">Max</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ac_swing">Swing:</label>
+                <select id="ac_swing" name="swing">
+                    <option value="0" selected>Off</option>
+                    <option value="1">On</option>
+                </select>
+            </div>
+            
+            <button type="button" class="button" onclick="sendACCommand()">Send Command</button>
+            <button type="button" class="button secondary" onclick="quickOff()">Quick Off</button>
+            <button type="button" class="button secondary" onclick="quickCool()">Quick Cool 24°</button>
+            <button type="button" class="button secondary" onclick="quickHeat()">Quick Heat 22°</button>
+        </form>
+        
+        <div class="status" id="status">
+            <strong>Status:</strong> Ready to send commands
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = '<strong>Status:</strong> ' + message;
+        }
+        
+        function sendACCommand() {
+            const model = document.getElementById('ac_model').value;
+            const mode = document.getElementById('ac_mode').value;
+            const temp = document.getElementById('temperature_c').value;
+            const fan = document.getElementById('ac_fan').value;
+            const swing = document.getElementById('ac_swing').value;
+            
+            const url = `/set?model=${model}&mode=${mode}&temp=${temp}&fan=${fan}&swing=${swing}`;
+            
+            updateStatus('Sending command...');
+            
+            // Simulate API call (replace with actual fetch when testing on device)
+            console.log('Sending command:', url);
+            setTimeout(() => {
+                updateStatus('Command sent successfully!');
+            }, 1000);
+        }
+        
+        function quickOff() {
+            const model = document.getElementById('ac_model').value;
+            updateStatus('Turning AC off...');
+            console.log('Quick off:', `/set?model=${model}&mode=0&temp=0`);
+            setTimeout(() => {
+                updateStatus('AC turned off!');
+            }, 1000);
+        }
+        
+        function quickCool() {
+            const model = document.getElementById('ac_model').value;
+            updateStatus('Activating cool mode...');
+            console.log('Quick cool:', `/set?model=${model}&mode=1&temp=24&fan=2&swing=0`);
+            setTimeout(() => {
+                updateStatus('Cool mode activated!');
+            }, 1000);
+        }
+        
+        function quickHeat() {
+            const model = document.getElementById('ac_model').value;
+            updateStatus('Activating heat mode...');
+            console.log('Quick heat:', `/set?model=${model}&mode=2&temp=22&fan=2&swing=0`);
+            setTimeout(() => {
+                updateStatus('Heat mode activated!');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

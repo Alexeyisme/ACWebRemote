@@ -104,20 +104,20 @@ bool ACController::sendCommand(int model, int mode, int temp, int fan, bool swin
         return sendTadiran(mode, temp, fan, swing);
     }
     
-    // Validate temperature range (16-30°C is typical for most ACs)
-    if (temp < 16 || temp > 30) {
+    // Validate temperature range
+    if (temp < AC_TEMP_MIN || temp > AC_TEMP_MAX) {
         Serial.printf("Invalid temperature: %d°C (using 24°C as default)\n", temp);
         temp = 24;
     }
     
     // Validate mode (0=OFF, 1=COOL, 2=HEAT, 3=FAN, 4=DRY, 5=AUTO)
-    if (mode < 0 || mode > 5) {
+    if (mode < AC_MODE_MIN || mode > AC_MODE_MAX) {
         Serial.printf("Invalid mode: %d (using COOL as default)\n", mode);
         mode = AC_MODE_COOL;
     }
     
-    // Validate fan speed (1-5 is typical)
-    if (fan < 1 || fan > 5) {
+    // Validate fan speed
+    if (fan < AC_FAN_MIN || fan > AC_FAN_MAX) {
         Serial.printf("Invalid fan speed: %d (using 3 as default)\n", fan);
         fan = 3;
     }

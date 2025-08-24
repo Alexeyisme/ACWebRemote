@@ -68,6 +68,21 @@ No authentication required - the API is designed for local network use.
 - `400 Bad Request`: Missing required parameters
 - `500 Internal Server Error`: Failed to send command
 
+**Error Examples:**
+```bash
+# Missing required parameters
+curl "http://accontrol.local/set?mode=1"
+# Response: 400 Bad Request - "Incorrect request! Required: mode, temp"
+
+# Invalid temperature (auto-corrected)
+curl "http://accontrol.local/set?mode=1&temp=50"
+# Response: 200 OK - "AC command sent successfully" (temp corrected to 24°C)
+
+# Invalid model (uses fallback)
+curl "http://accontrol.local/set?model=999&mode=1&temp=24"
+# Response: 200 OK - "AC command sent successfully" (uses Tadiran fallback)
+```
+
 **Examples:**
 
 ```bash
@@ -90,6 +105,20 @@ curl "http://accontrol.local/set?model=4&mode=1&temp=24&fan=2&swing=1"
 # Invalid temperature (will be auto-corrected to 24°C)
 curl "http://accontrol.local/set?mode=1&temp=50"
 ```
+
+## Troubleshooting
+
+### Common Issues
+- **Device not responding**: Check if ESP32 is powered and connected to WiFi
+- **Wrong AC model**: Use `model` parameter to set correct AC type
+- **Commands not working**: Verify IR LED is connected to GPIO 33
+- **Temperature not changing**: Ensure temperature is between 16-30°C
+- **mDNS not working**: Use IP address instead of `accontrol.local`
+
+### Debug Information
+- **Serial Monitor**: Connect via USB and check at 115200 baud
+- **Network Access**: Try `http://[device-ip]` if mDNS fails
+- **Model Validation**: Check Serial output for model selection messages
 
 ### 2. Configuration Interface
 

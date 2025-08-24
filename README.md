@@ -7,6 +7,14 @@
 
 A professional web-based remote control for Tadiran air conditioners using ESP32 and IR LED. **Perfect for Home Assistant integration!**
 
+## 🚀 Quick Start (5 minutes)
+
+1. **Build & Upload**: `pio run --target upload`
+2. **Connect to WiFi**: Join `ACWebRemote` network (password: `12345678`)
+3. **Configure**: Visit any website → redirected to setup page
+4. **Control**: Access `http://accontrol.local/` for full control
+5. **Automate**: Use API or integrate with Home Assistant
+
 ## Features
 
 - 🌐 **Web Interface**: Control your AC from any device via web browser
@@ -66,93 +74,22 @@ If you're using Home Assistant, check out the **[complete integration guide](HOM
 ## Usage
 
 ### Web Interface
-- **Main Control**: Visit `http://accontrol.local/config`
+- **Main Control**: Visit `http://accontrol.local/`
 - **Direct API**: `http://accontrol.local/set?mode=1&temp=24&fan=2&swing=0`
 
 ### API Documentation
 For complete API reference and examples, see **[📖 API Documentation](API_DOCUMENTATION.md)**
 
-## 🏠 Home Assistant Integration
+## 🔧 Troubleshooting
 
-This project works seamlessly with Home Assistant! Check out the complete integration guide:
+### Quick Fixes
+- **Can't connect**: Check if device is powered and LED is blinking
+- **Wrong URL**: Use `http://accontrol.local/` (not `/config`)
+- **mDNS issues**: Try IP address instead of hostname
+- **AC not responding**: Verify IR LED connection to GPIO 33
 
-**[📖 Home Assistant Integration Guide](HOME_ASSISTANT_INTEGRATION.md)**
-
-### **✨ Home Assistant Features**
-- **🖥️ Beautiful UI**: Responsive cards with sliders and buttons
-- **⌚ Apple Watch Support**: Quick actions from your wrist
-- **🤖 Full Automation**: Temperature-based and schedule-based control
-- **📱 Mobile Friendly**: Works perfectly on phones and tablets
-- **🎯 Voice Control**: Siri and Google Assistant integration
-- **📊 Energy Monitoring**: Track usage and costs
-- **🏠 Smart Home**: Integrate with presence detection and sensors
-
-### **Quick Home Assistant Setup**
-```yaml
-# configuration.yaml
-input_select:
-  ac_mode:
-    name: AC Mode
-    options: ["0: Off", "1: Cool", "2: Heat", "3: Fan", "4: Dry"]
-    initial: "0: Off"
-  
-  ac_model:
-    name: AC Model
-    options: 
-      - "0: Tadiran"
-      - "4: Daikin"
-      - "6: Daikin216"
-      - "24: Mitsubishi AC"
-      - "29: Panasonic AC"
-      - "31: Samsung AC"
-    initial: "0: Tadiran"
-
-input_number:
-  ac_temperature:
-    name: AC Temperature
-    initial: 22
-    min: 16
-    max: 30
-    step: 1
-    mode: slider
-
-rest_command:
-  # Set AC model (run once to configure)
-  set_ac_model:
-    url: "http://accontrol.local/set?model={{ model }}&mode=1&temp=24"
-    method: "GET"
-  
-  # Simple commands (uses saved model)
-  set_ac_control:
-    url: "http://accontrol.local/set?mode={{ mode }}&temp={{ temp }}"
-    method: "GET"
-  
-  # Commands with model override
-  set_ac_control_with_model:
-    url: "http://accontrol.local/set?model={{ model }}&mode={{ mode }}&temp={{ temp }}&fan={{ fan }}&swing={{ swing }}"
-    method: "GET"
-```
-
-### **🍎 Apple Watch & Voice Control**
-Create quick scripts for Apple Watch and voice assistants:
-- **AC Off** - Quick power off
-- **AC Cool 20°C** - Comfortable cooling
-- **AC Heat 22°C** - Warm heating
-- **AC Dry 20°C** - Dehumidification
-- **AC Eco Mode** - Energy saving
-- **AC Sleep Mode** - Night comfort
-
-### **🤖 Advanced Automations**
-- **Temperature-based control**: Auto-cool when room is hot
-- **Schedule-based**: Morning and evening routines
-- **Presence detection**: Turn off when leaving home
-- **Energy optimization**: Smart temperature management
-
-### **📱 Mobile Dashboard**
-- **Mushroom Cards**: Beautiful, modern UI
-- **Quick Actions**: One-tap presets
-- **Real-time Control**: Instant response
-- **Status Monitoring**: Current AC state
+### Debug Mode
+Connect via USB and check Serial Monitor at 115200 baud for detailed logs.
 
 ### API Endpoints
 

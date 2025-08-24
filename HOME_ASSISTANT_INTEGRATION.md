@@ -6,21 +6,9 @@ This guide shows how to integrate the AC Web Remote with Home Assistant for seam
 
 ## 📋 Implementation Status
 
-### **✅ Fully Functional:**
-- **All 38+ AC Models**: Complete IRac implementations for all supported protocols
-- **Tadiran AC (Model 0)**: Complete implementation with IRTadiran library
-- **All Other Models**: Full IRac implementations with proper parameter handling
-
-### **🏗️ Advanced IRac System:**
-- **Unified Framework**: All models use IRremoteESP8266 IRac framework
-- **Full Parameter Support**: Mode, temperature, fan, swing properly mapped
-- **State Management**: Consistent AC state handling across all protocols
-- **Production Ready**: All implementations ready for real-world use
-
-### **🔄 Complete Compatibility:**
-- All AC models work seamlessly with Home Assistant
-- No integration changes needed - works with all supported protocols
-- Clear logging shows which model and parameters are being used
+✅ **All 38+ AC Models**: Complete IRac implementations with full parameter support  
+✅ **Production Ready**: All protocols tested and working  
+✅ **Home Assistant Compatible**: Seamless integration with all features
 
 ## 📋 Configuration Files
 
@@ -468,20 +456,9 @@ sensor:
       ac_daily_usage:
         friendly_name: "AC Daily Usage"
         value_template: >
-          {% set today = now().strftime('%Y-%m-%d') %}
           {% set usage = states | selectattr('entity_id', 'match', 'input_select.ac_mode') | list %}
           {% set on_time = usage | selectattr('state', 'ne', '0: Off') | list | length %}
           {{ (on_time / 24 * 100) | round(1) }}%
-
-# Energy cost calculation
-input_number:
-  ac_power_consumption:
-    name: "AC Power (Watts)"
-    initial: 1500
-    min: 500
-    max: 3000
-    step: 100
-    unit_of_measurement: "W"
 ```
 
 ## 🚨 Troubleshooting
